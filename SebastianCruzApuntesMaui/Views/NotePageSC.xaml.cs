@@ -1,5 +1,7 @@
 namespace SebastianCruzApuntesMaui.Views;
 
+
+[QueryProperty(nameof(ItemId), nameof(ItemId))]
 public partial class NotePageSC : ContentPage
 {
     string _fileName = Path.Combine(FileSystem.AppDataDirectory, "notes.txt");
@@ -14,17 +16,24 @@ public partial class NotePageSC : ContentPage
         LoadNote(Path.Combine(appDataPath, randomFileName));
     }
 
-    private void SaveButton_Clicked(object sender, EventArgs e)
+    private async void SaveButton_Clicked(object sender, EventArgs e)
     {
-        // Save the file.
-        File.WriteAllText(_fileName, TextEditor.Text);
+        if (BindingContext is Models.NoteSC note)
+            File.WriteAllText(note.Filename, TextEditor.Text);
+
+        await Shell.Current.GoToAsync("..");
     }
 
-    private void DeleteButton_Clicked(object sender, EventArgs e)
+    private async void DeleteButton_Clicked(object sender, EventArgs e)
     {
-        // Delete the file.
-        if (File.Exists(_fileName))
-            File.Delete(_fileName);
+        if (BindingContext is Models.NoteSC note)
+        {
+            // Delete the file.
+            if (File.Exists(note.Filename))
+                File.Delete(note.Filename);
+        }
+
+        await Shell.Current.GoToAsync("..");
 
         TextEditor.Text = string.Empty;
     }
@@ -40,5 +49,10 @@ public partial class NotePageSC : ContentPage
         }
 
         BindingContext = noteModel;
+    }
+
+    public string ItemId
+    {
+        set { LoadNote(value); }
     }
 }
